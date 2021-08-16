@@ -8,6 +8,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+
     <title>Personnal Trainer</title>
 </head>
 <body>
@@ -19,12 +20,17 @@
             <label for="liste-voix" class="form-label">Choix de la voix</label>
             <select id="liste-voix"  class="form-select"></select>
         </div>
-        <div class="col-xs-12">
-            <label for="liste-voix" class="form-label">Choix du programme</label>
+        <div class="col-10">
+            <label for="liste-trainning" class="form-label">Choix du programme</label>
             <select id="liste-trainning" class="form-select"></select>
         </div>
-    </div>
+        <div class="row col-2 align-items-end justify-content-center">
+            <div class="col">
+                <a href="addProgram.html" class="btn btn-info">+</a>
+            </div>
+        </div>
 
+    </div>
 
     <div class="row">
         <div class="col">
@@ -49,97 +55,26 @@
         crossorigin="anonymous"></script>
 
 <script>
+
+    var listeProgramme = null
+    var url = "data/programs.json";
+    var request = new XMLHttpRequest();
+    request.open('GET', url);
+    request.responseType = 'json';
+    request.send();
+    request.onload = function() {
+        console.log(request.response)
+        listeProgramme = request.response;
+        populateTrainningList();
+    }
+
     var synth = window.speechSynthesis;
 
-    var inputForm = document.querySelector('form');
-    var inputTxt = document.querySelector('.txt');
     var voiceSelect = document.querySelector('#liste-voix');
     var trainningSelect = document.querySelector('#liste-trainning');
 
-    var pitch = document.querySelector('#pitch');
-    var pitchValue = document.querySelector('.pitch-value');
-    var rate = document.querySelector('#rate');
-    var rateValue = document.querySelector('.rate-value');
-
     var voices = [];
 
-    var listeProgramme = [
-        {
-            libelle: 'TEST',
-            etapes: [
-                {
-                    ordre: 1,
-                    libelle: 'Echaufement, 3 minutes à allure modérée, sans cale-pieds, résistance 1',
-                    duree: 10,
-                },
-                {
-                    ordre: 2,
-                    libelle: 'Echaufement, 2 minutes à allure modérée, avec cale-pieds, résistance à 3',
-                    duree: 10,
-                },
-                {
-                    ordre: 3,
-                    libelle: 'Coeur de séance, 45 minutes à allure modérée à 60% de la FC MAX',
-                    duree: 10,
-                },
-            ]
-        },
-        {
-            libelle: 'Rameur',
-            etapes: [
-                {
-                    ordre: 1,
-                    libelle: 'Echaufement, 3 minutes à allure modérée, sans cale-pieds, résistance 1',
-                    duree: 180,
-                },
-                {
-                    ordre: 2,
-                    libelle: 'Echaufement, 2 minutes à allure modérée, avec cale-pieds, résistance à 3',
-                    duree: 120,
-                },
-                {
-                    ordre: 3,
-                    libelle: 'Coeur de séance, 45 minutes à allure modérée à 60% de la FC MAX',
-                    duree: 2700,
-                },
-                {
-                    ordre: 4,
-                    libelle: 'Retour au calme, 10 min de rameur à allure lente',
-                    duree: 600,
-                },
-            ]
-        },
-        {
-            libelle: 'Rameur Séance « endurance longue »',
-            etapes: [
-                {
-                    ordre: 1,
-                    libelle: 'Echaufement partie 1',
-                    duree: 300,
-                },
-                {
-                    ordre: 2,
-                    libelle: 'Echaufement partie 2',
-                    duree: 180,
-                },
-                {
-                    ordre: 3,
-                    libelle: 'Echaufement partie 3',
-                    duree: 120,
-                },
-                {
-                    ordre: 4,
-                    libelle: 'Coeur de séance ',
-                    duree: 1800,
-                },
-                {
-                    ordre: 5,
-                    libelle: 'Retour au calme',
-                    duree: 600,
-                },
-            ]
-        },
-    ];
 
     function ditUnePhrase(text) {
         var utterThis = new SpeechSynthesisUtterance(text);
@@ -157,12 +92,12 @@
     }
 
     var etape = 0;
-    var timerStart = 0;
     var timer = 0;
     var car = 0;
     var interval = null;
     let isEnCours = false;
     let isPaused = false;
+    let programme = null;
 
 
     function stopTrainning() {
@@ -177,13 +112,9 @@
         gestionBtn();
     }
 
-    function startTrainning(idProg) {
-
+    function startTrainning() {
         isEnCours = true;
-        timerStart = Math.round(new Date().getTime() / 1000);
-
         gestionBtn();
-
         programme = listeProgramme[trainningSelect.selectedOptions[0].value];
         etape = 0;
         timer = 0;
@@ -280,7 +211,7 @@
     }
 
     function secToTime(sec) {
-        let m = Math.round(sec / 60) % 60;
+        let m = Math.floor(sec*0.016);
         let s = sec % 60;
         return m.toString().padStart(2, '0') + ":" + s.toString().padStart(2, '0');
 
@@ -319,7 +250,6 @@
         }
     }
 
-    populateTrainningList();
     populateVoiceList();
     if (speechSynthesis.onvoiceschanged !== undefined) {
         speechSynthesis.onvoiceschanged = populateVoiceList;

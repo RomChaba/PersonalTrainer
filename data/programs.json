@@ -1,0 +1,102 @@
+[
+  {
+    "libelle": "Rameur",
+    "etapes": [
+      {
+        "ordre": 1,
+        "libelle": "Echaufement, 3 minutes \u00e0 allure mod\u00e9r\u00e9e, sans cale-pieds, r\u00e9sistance 1",
+        "duree": 180
+      },
+      {
+        "ordre": 2,
+        "libelle": "Echaufement, 2 minutes \u00e0 allure mod\u00e9r\u00e9e, avec cale-pieds, r\u00e9sistance \u00e0 3",
+        "duree": 120
+      },
+      {
+        "ordre": 3,
+        "libelle": "Coeur de s\u00e9ance, 45 minutes \u00e0 allure mod\u00e9r\u00e9e \u00e0 60% de la FC MAX",
+        "duree": 2700
+      },
+      {
+        "ordre": 4,
+        "libelle": "Retour au calme, 10 min de rameur \u00e0 allure lente",
+        "duree": 600
+      }
+    ]
+  },
+  {
+    "libelle": "Rameur S\u00e9ance \u00ab endurance longue \u00bb",
+    "etapes": [
+      {
+        "ordre": 1,
+        "libelle": "Echaufement partie 1",
+        "duree": 300
+      },
+      {
+        "ordre": 2,
+        "libelle": "Echaufement partie 2",
+        "duree": 180
+      },
+      {
+        "ordre": 3,
+        "libelle": "Echaufement partie 3",
+        "duree": 120
+      },
+      {
+        "ordre": 4,
+        "libelle": "Coeur de s\u00e9ance ",
+        "duree": 1800
+      },
+      {
+        "ordre": 5,
+        "libelle": "Retour au calme",
+        "duree": 600
+      }
+    ]
+  },
+  {
+    "libelle": "Nouvel entrainement au rameur",
+    "etapes": [
+      {
+        "ordre": 0,
+        "libelle": "Echauffement, 3 minutes \u00e0 allure mod\u00e9r\u00e9e, sans cale-pieds, r\u00e9sistance 1",
+        "duree": "180"
+      },
+      {
+        "ordre": 1,
+        "libelle": "Echaufement, 2 minutes \u00e0 allure mod\u00e9r\u00e9e, avec cale-pieds, r\u00e9sistance \u00e0 3",
+        "duree": "120"
+      },
+      {
+        "ordre": 2,
+        "libelle": "C\u0153ur de la s\u00e9ance, 25 minutes \u00e0 allure mod\u00e9r\u00e9e \u00e0 60% de la FC MAX, r\u00e9sistance \u00e0 3",
+        "duree": "1500"
+      },
+      {
+        "ordre": 3,
+        "libelle": "Retour au calme, 5 minutes de rameur \u00e0 allure lente",
+        "duree": "300"
+      }
+    ]
+  },
+  {
+    "libelle": "TEST",
+    "etapes": [
+      {
+        "ordre": 1,
+        "libelle": "Echaufement, 3 minutes \u00e0 allure mod\u00e9r\u00e9e, sans cale-pieds, r\u00e9sistance 1",
+        "duree": 10
+      },
+      {
+        "ordre": 2,
+        "libelle": "Echaufement, 2 minutes \u00e0 allure mod\u00e9r\u00e9e, avec cale-pieds, r\u00e9sistance \u00e0 3",
+        "duree": 10
+      },
+      {
+        "ordre": 3,
+        "libelle": "Coeur de s\u00e9ance, 45 minutes \u00e0 allure mod\u00e9r\u00e9e \u00e0 60% de la FC MAX",
+        "duree": 10
+      }
+    ]
+  }
+]

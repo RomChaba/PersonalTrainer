@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <title>Personnal Trainer</title>
+</head>
+<body>
+
+<div class="container col-lg-3">
+    <div class="row py-4 gy-2">
+        <form action="modif.php" method="post">
+        <h1 class="text-center">Add Training</h1>
+        <div class="col-xs-12">
+            <label for="libelle" class="form-label">Label :</label>
+            <input type="text" name="libelle" id="libelle" class="form-control"/>
+        </div>
+        <div class="col-xs-12">
+            <h4>Steps :</h4>
+        </div>
+        <div id="steps">
+            <div class="form-group">
+                <label for="steps_label" class="form-label">Label :</label>
+                <input id="steps_label" name="steps_label[]" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="steps_duration" class="form-label">Duration : </label>
+                <input id="steps_duration" name="steps_duration[]" class="form-control"/>
+            </div>
+            <hr>
+        </div>
+        <div class="col mb-3">
+        <button class="btn btn-primary" type="button" onclick="addStep();">Add Step</button>
+        </div>
+        <div class="col">
+        <button class="btn btn-success" type="submit">Validate</button>
+        </div>
+        </form>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+        crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="data/programs.json"></script>
+
+<script>
+
+    var steps = document.getElementById("steps");
+
+    function addStep(){
+        let div = document.createElement("div");
+        div.classList.add("form-group");
+
+        let labelLabel = document.createElement("label");
+        labelLabel.classList.add("form-label");
+        labelLabel.innerText = "Label :";
+
+        let inputLabel = document.createElement("input");
+        inputLabel.classList.add("form-control");
+        inputLabel.type = "text";
+        inputLabel.name = "steps_label[]";
+
+        div.appendChild(labelLabel);
+        div.appendChild(inputLabel);
+
+        let labelDuration = document.createElement("label");
+        labelDuration.classList.add("form-label");
+        labelDuration.innerText = "Duration :";
+
+        let inputDuration = document.createElement("input");
+        inputDuration.classList.add("form-control");
+        inputDuration.type = "text";
+        inputDuration.name = "steps_duration[]";
+
+        div.appendChild(labelDuration);
+        div.appendChild(inputDuration);
+
+        steps.appendChild(div);
+
+    }
+
+</script>
+
+
+</body>
+</html>
