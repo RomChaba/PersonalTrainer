@@ -13,12 +13,14 @@
 <body>
 
 <div class="container col-lg-3">
-    <div class="row py-4 gy-4">
+    <div class="row py-4 gy-2">
         <h1 class="text-center">Personnal Trainer</h1>
         <div class="col-xs-12">
-            <select id="liste-voix" class="form-select"></select>
+            <label for="liste-voix" class="form-label">Choix de la voix</label>
+            <select id="liste-voix"  class="form-select"></select>
         </div>
         <div class="col-xs-12">
+            <label for="liste-voix" class="form-label">Choix du programme</label>
             <select id="liste-trainning" class="form-select"></select>
         </div>
     </div>
@@ -211,7 +213,7 @@
             timerDisplay();
 
             milestone();
-            
+
             if (handleSteps()) return true;
 
         }, 1000);
@@ -345,12 +347,6 @@
             btnPause.innerText = "Pause";
         }
     }
-
-    let test = new Date().getTime();
-    console.log(Math.round(test/1000));
-
-
-
 
 </script>
 
