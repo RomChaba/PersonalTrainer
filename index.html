@@ -29,56 +29,14 @@
             <select id="liste-voix" class="form-select"></select>
         </div>
         <div class="col-10">
-            <label for="liste-trainning" class="form-label">Choix du programme</label>
-            <select id="liste-trainning" class="form-select"></select>
+            <h2>Choix du programme : </h2>
         </div>
         <div class="row col-2 align-items-end justify-content-center">
             <div class="col">
                 <a href="addProgram.html" class="btn btn-info">+</a>
             </div>
         </div>
-
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <button id="btnStart" class="col btn btn-success" onclick="startTrainning();">Start Trainning</button>
-        </div>
-        <div class="col">
-            <button id="btnPause" class="col btn btn-warning disabled" onclick="pauseTrainning();">Pause</button>
-            <button id="btnStop" class="col btn btn-danger disabled" onclick="stopTrainning();">Stop</button>
-        </div>
-    </div>
-    <div class="row">
-        <p id="sceance" class="text-center fw-bold pt-4"></p>
-    </div>
-    <div class="row" style="height: 300px">
-        <div class="position-relative">
-            <div class="position-absolute top-50 start-50 translate-middle">
-                <progress-ring class="top-50 start-50" stroke="30" radius="150" progress="0" strokeColor="#9aa7f0"></progress-ring>
-            </div>
-            <div class="position-absolute top-50 start-50 translate-middle">
-                <div id="temps" class="fs-1 fw-bold text-muted">00:00</div>
-            </div>
-        </div>
-    </div>
-    <div class="row border border-danger align-items-center mx-4">
-        <div id="log" class="py-4">
-            <div class="row">
-                <div class="col">
-                    <p>Car : </p>
-                    <p id="car"></p>
-                </div>
-                <div class="col">
-                    <p>carFoisTps : </p>
-                    <p id="carFoisTps"></p>
-                </div>
-                <div class="col">
-                    <p>pSecFoisTpsFloor : </p>
-                    <p id="carFoisTpsFloor"></p>
-                </div>
-            </div>
-        </div>
+        <div id="liste-trainning" class="row g-3 mt-0 px-3"></div>
     </div>
 
 </div>
@@ -90,13 +48,6 @@
 <script src="components/ProgressRing.js"></script>
 
 <script>
-
-    window.customElements.define('progress-ring', ProgressRing);
-
-    // emulate progress attribute change
-    let progress = 0;
-    const el = document.querySelector('progress-ring');
-
 
     var listeProgramme = null;
     var url = "data/programs.json";
@@ -117,167 +68,7 @@
 
     var voices = [];
 
-
-    function ditUnePhrase(text) {
-        var utterThis = new SpeechSynthesisUtterance(text);
-        var selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
-        for (i = 0; i < voices.length; i++) {
-            if (voices[i].name === selectedOption) {
-                utterThis.voice = voices[i];
-            }
-        }
-        utterThis.pitch = 1;
-        utterThis.rate = 1;
-        synth.speak(utterThis);
-
-        return utterThis;
-    }
-
-    var etape = 0;
-    var timer = 0;
-    var car = 0;
-    var interval = null;
-    let isEnCours = false;
-    let isPaused = false;
     let programme = null;
-
-
-    function stopTrainning() {
-        isEnCours = false;
-        clearInterval(interval);
-        gestionBtn();
-        car = 0;
-        timerDisplay();
-    }
-
-    function pauseTrainning() {
-        isPaused = !isPaused;
-        gestionBtn();
-    }
-
-    function startTrainning() {
-        isEnCours = true;
-        el.setProgress(0);
-        gestionBtn();
-        programme = listeProgramme[trainningSelect.selectedOptions[0].value];
-        etape = 0;
-        timer = 0;
-        car = 0;
-        interval = null;
-        let texte = "Démarrage de l'entrainement " + programme.libelle;
-        let speechTitle = ditUnePhrase(texte);
-
-        speechTitle.onend = () => {
-            let speechLibelle = ditUnePhrase(programme.etapes[etape].libelle);
-            libelleDisplay(programme.etapes[etape].libelle);
-            car = programme.etapes[etape].duree;
-            speechLibelle.onend = () => {
-                timerLoop();
-            };
-        };
-    }
-
-    function timerLoop() {
-        interval = setInterval(() => {
-
-            if (isPaused) return isPaused;
-            if (!isEnCours) return isEnCours;
-
-            car -= 1;
-            timerDisplay();
-
-            handleProgressRing();
-
-            milestone();
-
-            if (handleSteps()) return true;
-
-        }, 1000);
-
-    }
-
-    function handleProgressRing() {
-        let tActu = programme.etapes[etape].duree - car;
-        let progress = tActu / programme.etapes[etape].duree * 100;
-
-        console.log(progress);
-        el.setAttribute('progress', progress);
-    }
-
-    function handleSteps() {
-        if (car === 0) {
-            etape++;
-            if (programme.etapes[etape] === undefined) {
-                ditUnePhrase("Fin de la scéance ! Bien joué.");
-                libelleDisplay("Fin de la scéance ! Bien joué.");
-                stopTrainning();
-                return true;
-            } else {
-                isPaused = true;
-
-                car = programme.etapes[etape].duree;
-                let speechLibelle = ditUnePhrase(programme.etapes[etape].libelle);
-                speechLibelle.onstart = _ =>{
-                    el.setProgress(0);
-                }
-                speechLibelle.onend = () => {
-                    isPaused = false;
-                };
-                libelleDisplay(programme.etapes[etape].libelle);
-                timer = 1;
-            }
-        }
-    }
-
-    function milestone() {
-        // if(programme.etapes[etape] === undefined) return true;
-        switch (car) {
-            case Math.round(programme.etapes[etape].duree) - 1:
-                ditUnePhrase("C'est parti");
-                break;
-            case Math.round(programme.etapes[etape].duree / 2):
-                ditUnePhrase("On est à la moitiée");
-                break;
-            case 3:
-                // ditUnePhrase(car);
-                ditUnePhrase(car);
-                break;
-            case 2:
-                ditUnePhrase(car);
-                break;
-            case 1:
-                ditUnePhrase(car);
-                break;
-            case 0:
-                ditUnePhrase("Stop");
-                break;
-        }
-    }
-
-    function timerDisplay() {
-        document.getElementById("temps").innerText = secToTime(car);
-    }
-
-    function libelleDisplay(text) {
-        document.getElementById("sceance").innerText = text;
-    }
-
-    function secToTime(sec) {
-
-        let log = document.getElementById("log");
-
-        let pSec = document.getElementById("car");
-        let pSecFoisTps = document.getElementById("carFoisTps");
-        let pSecFoisTpsFloor = document.getElementById("carFoisTpsFloor");
-
-        pSec.innerText = sec;
-        pSecFoisTps.innerText = ((sec / 60) % 60).toString();
-        pSecFoisTpsFloor.innerText = Math.floor((sec / 60) % 60).toString();
-
-        let m = Math.floor((sec / 60) % 60);
-        let s = sec % 60;
-        return m.toString().padStart(2, '0') + ":" + s.toString().padStart(2, '0');
-    }
 
     function populateVoiceList() {
         voices = synth.getVoices();
@@ -302,9 +93,30 @@
     function populateTrainningList() {
 
         for (let i = 0; i < listeProgramme.length; i++) {
-            let option = document.createElement('option');
-            option.textContent = listeProgramme[i].libelle;
+            let option = document.createElement('div');
+            option.classList.add("card")
+            option.onclick = () =>{
+                // alert("Clique sur " + listeProgramme[i].libelle);
+                localStorage.setItem("program", JSON.stringify(listeProgramme[i]));
+                localStorage.setItem("voice", JSON.stringify(voiceSelect.selectedOptions[0].getAttribute('data-name')));
+                document.location = "timer";
+            }
 
+            let tempo = "";
+            let sumAllTime = 0;
+
+            for(let j = 0; j < listeProgramme[i].etapes.length;j++ ){
+                // if (j === 0) tempo += "<ul class='list-unstyled'>"
+                // tempo += "<li class='card-text ml-2'>"+listeProgramme[i].etapes[j].libelle+"</li>";
+                // if (j === listeProgramme[i].etapes.length) tempo += "</ul>"
+                sumAllTime += parseInt(listeProgramme[i].etapes[j].duree);
+            }
+            option.innerHTML =
+                "<div class=\"card-body\">\n" +
+                "   <h5 class=\"card-title\">"+listeProgramme[i].libelle+"</h5>" +
+                "   <h6 class=\"card-subtitle mb-2 text-muted\"> Durée : "+secToTime(sumAllTime)+"</h6>" +
+                tempo+
+                "</div>";
             option.value = i;
 
             trainningSelect.appendChild(option);
@@ -316,29 +128,12 @@
         speechSynthesis.onvoiceschanged = populateVoiceList;
     }
 
-
-    function gestionBtn() {
-        var btnStart = document.getElementById("btnStart");
-        var btnPause = document.getElementById("btnPause");
-        var btnStop = document.getElementById("btnStop");
-
-        if (isEnCours) {
-            btnStart.classList.add("disabled");
-            btnPause.classList.remove("disabled");
-            btnStop.classList.remove("disabled");
-        } else {
-            btnStart.classList.remove("disabled");
-            btnPause.classList.add("disabled");
-            btnStop.classList.add("disabled");
-        }
-
-        if (isPaused) {
-            btnPause.innerText = "Play";
-        } else {
-            btnPause.innerText = "Pause";
-        }
+    function secToTime(sec) {
+        let h = Math.floor((sec / (60*60)) % 60);
+        let m = Math.floor((sec / 60) % 60);
+        let s = sec % 60;
+        return h.toString().padStart(2, '0') + ":" +m.toString().padStart(2, '0') + ":" + s.toString().padStart(2, '0');
     }
-
 </script>
 
 
