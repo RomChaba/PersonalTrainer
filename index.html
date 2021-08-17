@@ -10,15 +10,23 @@
           integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
 
     <title>Personnal Trainer</title>
+
+    <style>
+        .progress-ring__circle {
+            transition: stroke-dashoffset 1s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container col-lg-3">
+<div class="container col-lg-6">
     <div class="row py-4 gy-2">
         <h1 class="text-center">Personnal Trainer</h1>
         <div class="col-xs-12">
             <label for="liste-voix" class="form-label">Choix de la voix</label>
-            <select id="liste-voix"  class="form-select"></select>
+            <select id="liste-voix" class="form-select"></select>
         </div>
         <div class="col-10">
             <label for="liste-trainning" class="form-label">Choix du programme</label>
@@ -44,8 +52,33 @@
     <div class="row">
         <p id="sceance" class="text-center fw-bold pt-4"></p>
     </div>
-    <div class="row border align-items-center mx-4">
-        <div id="temps" class="display-1 text-center py-4">00:00</div>
+    <div class="row" style="height: 300px">
+        <div class="position-relative">
+            <div class="position-absolute top-50 start-50 translate-middle">
+                <progress-ring class="top-50 start-50" stroke="30" radius="150" progress="0" strokeColor="#9aa7f0"></progress-ring>
+            </div>
+            <div class="position-absolute top-50 start-50 translate-middle">
+                <div id="temps" class="fs-1 fw-bold text-muted">00:00</div>
+            </div>
+        </div>
+    </div>
+    <div class="row border border-danger align-items-center mx-4">
+        <div id="log" class="py-4">
+            <div class="row">
+                <div class="col">
+                    <p>Car : </p>
+                    <p id="car"></p>
+                </div>
+                <div class="col">
+                    <p>carFoisTps : </p>
+                    <p id="carFoisTps"></p>
+                </div>
+                <div class="col">
+                    <p>pSecFoisTpsFloor : </p>
+                    <p id="carFoisTpsFloor"></p>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -54,19 +87,28 @@
         integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
         crossorigin="anonymous"></script>
 
+<script src="components/ProgressRing.js"></script>
+
 <script>
 
-    var listeProgramme = null
+    window.customElements.define('progress-ring', ProgressRing);
+
+    // emulate progress attribute change
+    let progress = 0;
+    const el = document.querySelector('progress-ring');
+
+
+    var listeProgramme = null;
     var url = "data/programs.json";
     var request = new XMLHttpRequest();
     request.open('GET', url);
     request.responseType = 'json';
     request.send();
-    request.onload = function() {
-        console.log(request.response)
+    request.onload = function () {
+        console.log(request.response);
         listeProgramme = request.response;
         populateTrainningList();
-    }
+    };
 
     var synth = window.speechSynthesis;
 
@@ -105,8 +147,9 @@
         clearInterval(interval);
         gestionBtn();
         car = 0;
-        timerDisplay()
+        timerDisplay();
     }
+
     function pauseTrainning() {
         isPaused = !isPaused;
         gestionBtn();
@@ -114,6 +157,7 @@
 
     function startTrainning() {
         isEnCours = true;
+        el.setProgress(0);
         gestionBtn();
         programme = listeProgramme[trainningSelect.selectedOptions[0].value];
         etape = 0;
@@ -127,14 +171,13 @@
             let speechLibelle = ditUnePhrase(programme.etapes[etape].libelle);
             libelleDisplay(programme.etapes[etape].libelle);
             car = programme.etapes[etape].duree;
-            speechLibelle.onend = ()=>{
+            speechLibelle.onend = () => {
                 timerLoop();
-            }
+            };
         };
     }
 
-    function timerLoop()
-    {
+    function timerLoop() {
         interval = setInterval(() => {
 
             if (isPaused) return isPaused;
@@ -142,6 +185,8 @@
 
             car -= 1;
             timerDisplay();
+
+            handleProgressRing();
 
             milestone();
 
@@ -151,10 +196,16 @@
 
     }
 
-    function handleSteps()
-    {
-        if (car === 0)
-        {
+    function handleProgressRing() {
+        let tActu = programme.etapes[etape].duree - car;
+        let progress = tActu / programme.etapes[etape].duree * 100;
+
+        console.log(progress);
+        el.setAttribute('progress', progress);
+    }
+
+    function handleSteps() {
+        if (car === 0) {
             etape++;
             if (programme.etapes[etape] === undefined) {
                 ditUnePhrase("Fin de la scéance ! Bien joué.");
@@ -163,19 +214,22 @@
                 return true;
             } else {
                 isPaused = true;
+
                 car = programme.etapes[etape].duree;
                 let speechLibelle = ditUnePhrase(programme.etapes[etape].libelle);
-                speechLibelle.onend = ()=>{
-                    isPaused = false;
+                speechLibelle.onstart = _ =>{
+                    el.setProgress(0);
                 }
+                speechLibelle.onend = () => {
+                    isPaused = false;
+                };
                 libelleDisplay(programme.etapes[etape].libelle);
                 timer = 1;
             }
         }
     }
 
-    function milestone()
-    {
+    function milestone() {
         // if(programme.etapes[etape] === undefined) return true;
         switch (car) {
             case Math.round(programme.etapes[etape].duree) - 1:
@@ -200,22 +254,29 @@
         }
     }
 
-    function timerDisplay()
-    {
+    function timerDisplay() {
         document.getElementById("temps").innerText = secToTime(car);
     }
 
-    function libelleDisplay(text)
-    {
+    function libelleDisplay(text) {
         document.getElementById("sceance").innerText = text;
     }
 
     function secToTime(sec) {
-        let m = Math.floor(sec*0.016);
+
+        let log = document.getElementById("log");
+
+        let pSec = document.getElementById("car");
+        let pSecFoisTps = document.getElementById("carFoisTps");
+        let pSecFoisTpsFloor = document.getElementById("carFoisTpsFloor");
+
+        pSec.innerText = sec;
+        pSecFoisTps.innerText = ((sec / 60) % 60).toString();
+        pSecFoisTpsFloor.innerText = Math.floor((sec / 60) % 60).toString();
+
+        let m = Math.floor((sec / 60) % 60);
         let s = sec % 60;
         return m.toString().padStart(2, '0') + ":" + s.toString().padStart(2, '0');
-
-
     }
 
     function populateVoiceList() {
@@ -256,16 +317,16 @@
     }
 
 
-    function gestionBtn(){
+    function gestionBtn() {
         var btnStart = document.getElementById("btnStart");
         var btnPause = document.getElementById("btnPause");
         var btnStop = document.getElementById("btnStop");
 
-        if (isEnCours){
+        if (isEnCours) {
             btnStart.classList.add("disabled");
             btnPause.classList.remove("disabled");
             btnStop.classList.remove("disabled");
-        }else {
+        } else {
             btnStart.classList.remove("disabled");
             btnPause.classList.add("disabled");
             btnStop.classList.add("disabled");
